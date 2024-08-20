@@ -1,0 +1,14 @@
+html, body {
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+body{
+    background-color: #178514;
+    overflow: hidden;
+}
+
+canvas{
+    background: url(../res/image/stadium.jpg) no-repeat fixed;
+    background-size: 100% 100%;
+}
