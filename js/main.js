@@ -102,8 +102,6 @@ function animate(){
         ctx.fillRect(ad_board.bottom_left.x, ad_board.bottom_left.y, ad_board.width, ad_board.height);
         ctx.fillRect(ad_board.bottom_right.x, ad_board.bottom_right.y, ad_board.width, ad_board.height);
         
-        check_collision(ball, player, 0);
-        check_collision(player, ball, 0.9);
 
         player.render();
         ball.render();
@@ -126,31 +124,30 @@ function animate(){
     }
 }
 
-function check_collision(object1, object2, push_power = 1){
+function ball_reflection(object1, object2){
     let delta = {
         x: object1.position.x - object2.position.x,
         y: object1.position.y - object2.position.y,
-    }
+    };
 
-    let distance = Math.sqrt(Math.pow(delta.x, 2) + Math.pow(delta.y, 2))
+    let distance = Math.sqrt(Math.pow(delta.x, 2) + Math.pow(delta.y, 2));
 
     let intersect = distance - (object1.radius + object2.radius);
     
     let ax = (intersect / distance) * delta.x;
     let ay = (intersect / distance) * delta.y;
 
-    if(intersect <= 0){
-        player.can_kick = true;
-
-        push_power = Math.min(Math.max(push_power, 0), 1);
-
-        object2.velocity.x += ax * 0.5;
-        object2.velocity.y += ay * 0.5;
-
-        object1.velocity.x *= push_power;
-        object1.velocity.y *= push_power;
+    if(intersect <= 0){    
+        object1.velocity.x *= -1;
+        object1.velocity.y *= -1;
     }
+}
 
+function bleh(object1, object2){
+    object2.position.x = object1.position.x + ax;
+    object2.position.y = object1.position.x + ay;
+    object2.velocity.x = 0;
+    object2.velocity.y = 0;
 }
 
 //#endregion FUNCTIONS

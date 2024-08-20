@@ -10,6 +10,11 @@ class Ball{
             x: 0,
             y: 0,
         }
+
+        this.is_blocked = {
+            x: false,
+            y: false,
+        }
     }
 
     update(){
@@ -18,30 +23,46 @@ class Ball{
 
         if(this.position.x - this.radius + this.velocity.x < stadium.position.x){
             this.position.x = this.radius + stadium.position.x;
-            this.velocity.x *= -1;
+            this.velocity.x *= -0.95;
+            this.is_blocked.x = true;
         }
-        if(this.position.x + this.radius + this.velocity.x > stadium.position.x + stadium.width){
+        else if(this.position.x + this.radius + this.velocity.x > stadium.position.x + stadium.width){
             this.position.x = stadium.position.x + stadium.width - this.radius;
-            this.velocity.x *= -1;
+            this.velocity.x *= -0.95;
+            this.is_blocked.x = true;
         }
+        else{
+            this.is_blocked.x = false;
+        }
+
         if(this.position.y - this.radius + this.velocity.y < stadium.position.y){
             this.position.y = this.radius + stadium.position.y;
-            this.velocity.y *= -1;
+            this.velocity.y *= -0.95;
+            this.is_blocked.y = true;
         }
-        if(this.position.y + this.radius + this.velocity.y > stadium.position.y + stadium.height){
+        else if(this.position.y + this.radius + this.velocity.y > stadium.position.y + stadium.height){
             this.position.y = stadium.position.y + stadium.height - this.radius;
-            this.velocity.y *= -1;
+            this.velocity.y *= -0.95;
+            this.is_blocked.y = true;
         }  
+        else{
+            this.is_blocked.y = false;
+        }
 
         if((this.position.y > ad_board.top_left.y && this.position.y < ad_board.top_left.y + ad_board.height + goal_frame)
             || (this.position.y > ad_board.bottom_left.y - goal_frame && this.position.y < ad_board.bottom_left.y + ad_board.height)){
                 if(this.position.x - this.radius + this.velocity.x < ad_board.top_left.x + ad_board.width + pitch){
                     this.position.x = this.radius + ad_board.top_left.x + ad_board.width + pitch;
-                    this.velocity.x *= -1;
+                    this.velocity.x *= -0.95;
+                    this.is_blocked.x = true;
                 }
-                if(this.position.x + this.radius + this.velocity.x > ad_board.top_right.x - pitch){
+                else if(this.position.x + this.radius + this.velocity.x > ad_board.top_right.x - pitch){
                     this.position.x = ad_board.top_right.x - pitch - this.radius;
-                    this.velocity.x *= -1;
+                    this.velocity.x *= -0.95;
+                    this.is_blocked.x = true;
+                }
+                else{
+                    this.is_blocked.x = false;
                 }
             }
     
@@ -49,11 +70,16 @@ class Ball{
             || (this.position.x > ad_board.top_right.x - pitch && this.position.y < ad_board.top_right.x + ad_board.width)){
                 if(this.position.y - this.radius + this.velocity.y < ad_board.top_left.y + ad_board.height + goal_frame){
                     this.position.y = this.radius + ad_board.top_left.y + ad_board.height + goal_frame;
-                    this.velocity.y *= -1;
+                    this.velocity.y *= -0.95;
+                    this.is_blocked.y = true;
                 }
-                if(this.position.y + this.radius + this.velocity.y > ad_board.bottom_left.y - goal_frame){
+                else if(this.position.y + this.radius + this.velocity.y > ad_board.bottom_left.y - goal_frame){
                     this.position.y = ad_board.bottom_left.y - goal_frame - this.radius;
-                    this.velocity.y *= -1;
+                    this.velocity.y *= -0.95;
+                    this.is_blocked.y = true;
+                }
+                else{
+                    this.is_blocked.y = false;
                 }
             }
 

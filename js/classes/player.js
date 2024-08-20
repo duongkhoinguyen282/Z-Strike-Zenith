@@ -12,6 +12,7 @@ class Player{
         this.normal_speed = this.radius * 0.1; // need to lower the speed later to 0.2
         this.sprint_speed = this.radius * 0.2;
 
+        this.shot_power = this.radius;
         this.can_kick = false;
         
         this.input = {
@@ -67,6 +68,7 @@ class Player{
             }
             if(event.key == " "){
                 this.input.kick = false;
+                console.log("stop");
             }
         })
     }
@@ -74,6 +76,8 @@ class Player{
     update(){
         // handle input
         this.handle_input();
+
+        this.check_collision(ball, 0.95);
 
         // stop moving
         if(!this.input.left && !this.input.right){
@@ -89,7 +93,7 @@ class Player{
             this.velocity.x -= this.acceleration;
         }
         if(this.input.right){
-            // console.log("I pressed right");
+            console.log("I pressed right");
             this.velocity.x += this.acceleration;
         }
         if(this.input.up){
@@ -169,6 +173,7 @@ class Player{
         }
 
         if(this.input.kick && this.can_kick){
+            console.log("kick");
             this.kick(ball);
         }
     
@@ -191,18 +196,82 @@ class Player{
         this.draw();
     }
 
-    kick(ball){
+    check_collision(object, push_power = 1){
+        let delta = {
+            x: this.position.x + this.velocity.x - object.position.x,
+            y: this.position.y + this.velocity.y - object.position.y,
+        }
+        let delta_move = {
+            x: this.position.x - (object.position.x + object.velocity.x),
+            y: this.position.y - (object.position.y + object.velocity.y),
+        };
+    
+        let distance = Math.sqrt(Math.pow(delta.x, 2) + Math.pow(delta.y, 2));
+        let distance_move = Math.sqrt(Math.pow(delta_move.x, 2) + Math.pow(delta_move.y, 2));
+    
+        let intersect = distance - (this.radius + object.radius);
+        let intersect_move = distance_move - (this.radius + object.radius);
+            
+        let ax = (intersect / distance) * delta.x;
+        let ay = (intersect / distance) * delta.y;
+    
+        if(intersect_move <= 0 || intersect <= 0){
+            object.position.x += ax;
+            object.position.y += ay; 
+
+            if(object.velocity.x / this.velocity.x < 0){
+                if(Math.abs(object.velocity.x) > Math.abs(this.velocity.x)){
+                    this.velocity.x -= ax;
+                }
+                object.velocity.x *= -0.95;
+            }
+            if(object.velocity.y / this.velocity.y < 0){
+                if(Math.abs(object.velocity.y) > Math.abs(this.velocity.y)){
+                    this.velocity.y -= ay;
+                }
+                object.velocity.y *= -0.95;
+            }
+    
+            player.can_kick = true;
+    
+            push_power = Math.min(Math.max(push_power, 0), 1);
+    
+            if(object.is_blocked.x){
+                this.velocity.x = 0;
+                // object.velocity.x = 0;
+                ax = 0;
+            }
+            else{
+                this.velocity.x *= push_power;
+            }
+            if(object.is_blocked.y){
+                this.velocity.y = 0;
+                // object.velocity.y = 0;
+                ay = 0;
+            }
+            else{
+                this.velocity.y *= push_power;
+            }
+    
+            object.velocity.x += ax;
+            object.velocity.y += ay;
+        }
+    }
+
+    kick(object){
         player.can_kick = false;
 
         let delta = {
-            x: this.position.x - ball.position.x,
-            y: this.position.y - ball.position.y,
+            x: this.position.x - object.position.x,
+            y: this.position.y - object.position.y,
         }
-    
-        ball.velocity.x -= delta.x;
-        ball.velocity.y -= delta.y;
 
-        console.log(player.can_kick);
+        let pptn = Math.abs(delta.y / delta.x); // proportion between delta.y and delta.x
 
+        let shot_power_x = this.shot_power / Math.sqrt(Math.pow(pptn, 2) + 1);
+        let shot_power_y = pptn * shot_power_x;
+        
+        object.velocity.x -= shot_power_x * Math.sign(delta.x);
+        object.velocity.y -= shot_power_y * Math.sign(delta.y);
     }
 };
