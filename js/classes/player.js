@@ -9,11 +9,19 @@ class Player{
         }
         this.acceleration = this.radius * 0.005;
 
-        this.normal_speed = this.radius * 0.1; // need to lower the speed later to 0.2
+        this.normal_speed = this.radius * 0.1; // need to lower the speed later to 0.1
         this.sprint_speed = this.radius * 0.2;
 
-        this.shot_power = this.radius;
+        this.shot_power = this.radius * 2;
         this.can_kick = false;
+
+        this.aiming_start = 0;
+        this.aiming = false;
+        this.aiming_done = false;
+        this.aiming_duration = 0; // this value will be limited between 0 and 1
+        this.max_aiming_duration = 1000; // this value is measured in millseconds
+
+        this.max_powerbar = this.radius * 3;    
         
         this.input = {
             left: false,
@@ -68,7 +76,10 @@ class Player{
             }
             if(event.key == " "){
                 this.input.kick = false;
-                console.log("stop");
+
+                if(this.can_kick && this.aiming) {
+                    this.aiming_done = true;
+                }
             }
         })
     }
@@ -76,6 +87,8 @@ class Player{
     update(){
         // handle input
         this.handle_input();
+
+        this.can_kick = false;
 
         this.check_collision(ball, 0.95);
 
@@ -93,7 +106,7 @@ class Player{
             this.velocity.x -= this.acceleration;
         }
         if(this.input.right){
-            console.log("I pressed right");
+            // console.log("I pressed right");
             this.velocity.x += this.acceleration;
         }
         if(this.input.up){
@@ -173,7 +186,34 @@ class Player{
         }
 
         if(this.input.kick && this.can_kick){
-            console.log("kick");
+            if(!this.aiming){
+                this.aiming = true;
+                this.aiming_start = Date.now();
+            }
+
+            let temp_duration = (Date.now() - this.aiming_start) / this.max_aiming_duration;
+            this.aiming_duration = Math.min(Math.max(temp_duration, 0), 1); // this value is limited between 0 and 1
+
+            if(this.aiming){
+                ctx.fillStyle = "magenta";
+
+                let powerbar = {
+                    x: this.position.x - this.radius * 1.5,
+                    y: this.position.y - this.radius * 2,
+                    width: this.max_powerbar * this.aiming_duration,
+                    height: this.radius * 0.5,
+                }
+    
+                ctx.lineWidth = 2;
+                ctx.strokeRect(powerbar.x - 2, powerbar.y - 2, this.max_powerbar + 4, powerbar.height + 4);
+                ctx.fillRect(powerbar.x, powerbar.y, powerbar.width, powerbar.height);
+            }
+        }
+        else{
+            this.aiming = false;
+        }
+
+        if(this.aiming_done){
             this.kick(ball);
         }
     
@@ -232,7 +272,7 @@ class Player{
                 object.velocity.y *= -0.95;
             }
     
-            player.can_kick = true;
+            this.can_kick = true;
     
             push_power = Math.min(Math.max(push_power, 0), 1);
     
@@ -253,13 +293,14 @@ class Player{
                 this.velocity.y *= push_power;
             }
     
-            object.velocity.x += ax;
-            object.velocity.y += ay;
+            object.velocity.x += ax * 1.5;
+            object.velocity.y += ay * 1.5;
         }
     }
 
     kick(object){
-        player.can_kick = false;
+        this.can_kick = false;
+        this.aiming_done = false;
 
         let delta = {
             x: this.position.x - object.position.x,
@@ -267,11 +308,14 @@ class Player{
         }
 
         let pptn = Math.abs(delta.y / delta.x); // proportion between delta.y and delta.x
-
-        let shot_power_x = this.shot_power / Math.sqrt(Math.pow(pptn, 2) + 1);
+        
+        let shot_power_x = this.aiming_duration * this.shot_power / Math.sqrt(Math.pow(pptn, 2) + 1);
         let shot_power_y = pptn * shot_power_x;
         
         object.velocity.x -= shot_power_x * Math.sign(delta.x);
         object.velocity.y -= shot_power_y * Math.sign(delta.y);
+
     }
 };
+
+// fix the time duration aiming

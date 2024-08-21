@@ -18,9 +18,11 @@ class Ball{
     }
 
     update(){
+        // ball slows down
         this.velocity.x *= 0.95;
         this.velocity.y *= 0.95;
 
+        // check boundaries
         if(this.position.x - this.radius + this.velocity.x < stadium.position.x){
             this.position.x = this.radius + stadium.position.x;
             this.velocity.x *= -0.95;
