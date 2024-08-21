@@ -111,14 +111,21 @@ function animate(){
         player.input.left = false;
         player.input.right = false;    
         player.input.up = false;
-        player.input.down = false;        
+        player.input.down = false;     
+        
+        let text_position = {
+            x: window.innerWidth / 2,
+            y: window.innerHeight / 2,
+        }
 
         ctx.fillStyle = "black";
         ctx.fillRect(0, 0, canvas.width, canvas.height);   
 
         ctx.fillStyle = "white";
         ctx.font = "50px Times";
-        ctx.fillText("Press F11 to have a better experience", window.innerWidth / 2, window.innerHeight / 2);
+        ctx.fillText("Press F11 to have a better experience", text_position.x, text_position.y - 50);
+        ctx.fillText("Use \"Arrows\" to move the player", text_position.x, text_position.y + 50);
+        ctx.fillText("Press \"Space\" to kick the ball or hold for stronger power", text_position.x, text_position.y + 100);
         ctx.textAlign = "center";
     }
 }
