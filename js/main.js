@@ -11,8 +11,8 @@ canvas.height = screen.height;
 
 const STD_MEASUREMENT = canvas.width;
 
-let pitch = canvas.height * 0.009375;
-let goal_frame = canvas.height * 0.015625;
+const pitch = canvas.height * 0.009375;
+const goal_frame = canvas.height * 0.015625;
 
 const stadium = {
     position: {
@@ -52,14 +52,15 @@ const player = new Player({
         y: stadium.position.y + stadium.height * 0.5,
     }
 });
+
 const ball = new Ball();
+
+const score_board = new Score_Board();
 
 //#endregion VARIABLES
 
 //----- MAIN CODE -----//
 //#region MAIN CODE
-
-
 
 // render game
 animate();
@@ -68,15 +69,6 @@ animate();
 
 //----- FUNCTIONS -----//
 //#region FUNCTIONS
-
-function resize_canvas() {
-    canvas.width = screen.width;
-    canvas.height = screen.height;
-}
-
-function resize_game(){
-    resize_canvas();
-}
 
 function animate(){
     window.requestAnimationFrame(animate);
@@ -104,15 +96,19 @@ function animate(){
 
         player.render();
         ball.render();
+        score_board.render(ball);
+
     }
 
-    // if the game is not fullscreen
+    // if the game is not fullscreen users are not allowed to play
     else{
+        // prevent character moving 
         player.input.left = false;
         player.input.right = false;    
         player.input.up = false;
         player.input.down = false;     
         
+        // some notes for users
         let text_position = {
             x: window.innerWidth / 2,
             y: window.innerHeight / 2,

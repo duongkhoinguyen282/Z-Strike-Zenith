@@ -11,6 +11,7 @@ class Player{
 
         this.normal_speed = this.radius * 0.1; // need to lower the speed later to 0.1
         this.sprint_speed = this.radius * 0.2;
+        this.dribbling = 0.95;
 
         this.shot_power = this.radius * 2;
         this.can_kick = false;
@@ -90,7 +91,7 @@ class Player{
 
         this.can_kick = false;
 
-        this.check_collision(ball, 0.95);
+        this.check_collision(ball, this.dribbling);
 
         // stop moving
         if(!this.input.left && !this.input.right){
@@ -185,6 +186,7 @@ class Player{
             }
         }
 
+        // if character can kick, the powerbar will start to fill
         if(this.input.kick && this.can_kick){
             if(!this.aiming){
                 this.aiming = true;
@@ -204,6 +206,7 @@ class Player{
                     height: this.radius * 0.5,
                 }
     
+                // draw powerbar
                 ctx.lineWidth = 2;
                 ctx.strokeRect(powerbar.x - 2, powerbar.y - 2, this.max_powerbar + 4, powerbar.height + 4);
                 ctx.fillRect(powerbar.x, powerbar.y, powerbar.width, powerbar.height);
@@ -255,27 +258,33 @@ class Player{
         let ax = (intersect / distance) * delta.x;
         let ay = (intersect / distance) * delta.y;
     
-        if(intersect_move <= 0 || intersect <= 0){
+        // we will check if the ball hit the character and prevent the ball flies through the character
+        if(intersect_move <= 3 || intersect <= 0){
             object.position.x += ax;
             object.position.y += ay; 
 
+            // sometimes character will be pushed by the ball
+            let random = Math.random();
             if(object.velocity.x / this.velocity.x < 0){
                 if(Math.abs(object.velocity.x) > Math.abs(this.velocity.x)){
-                    this.velocity.x -= ax;
+                    console.log("push");
+                    this.velocity.x -= ax * random;
                 }
                 object.velocity.x *= -0.95;
             }
             if(object.velocity.y / this.velocity.y < 0){
                 if(Math.abs(object.velocity.y) > Math.abs(this.velocity.y)){
-                    this.velocity.y -= ay;
+                    console.log("push");
+                    this.velocity.y -= ay * random;
                 }
                 object.velocity.y *= -0.95;
             }
     
             this.can_kick = true;
     
-            push_power = Math.min(Math.max(push_power, 0), 1);
-    
+            push_power = Math.min(Math.max(push_power, 0), 1); // this value will be limited between 0 and 1
+            
+            // prevent pushing the ball away off the stadium
             if(object.is_blocked.x){
                 this.velocity.x = 0;
                 // object.velocity.x = 0;
@@ -293,8 +302,14 @@ class Player{
                 this.velocity.y *= push_power;
             }
     
-            object.velocity.x += ax * 1.5;
-            object.velocity.y += ay * 1.5;
+            // sometimes there is an error in dribbling
+
+            let dribbling_error = Math.random() + 1;
+
+            if(this.input.sprint) dribbling_error++;
+
+            object.velocity.x += ax * dribbling_error;
+            object.velocity.y += ay * dribbling_error;
         }
     }
 

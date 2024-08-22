@@ -1,5 +1,9 @@
 class Ball{
     constructor(){
+        this.initial_position = {
+            x: stadium.position.x + stadium.width / 2,
+            y: stadium.position.y + stadium.height / 2,
+        }
         this.position = {
             x: stadium.position.x + stadium.width / 2,
             y: stadium.position.y + stadium.height / 2,
